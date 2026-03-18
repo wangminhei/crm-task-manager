@@ -1,46 +1,151 @@
-version: "3.8"
+# 🚀 CRM Task Manager
 
-services:
+Hệ thống quản lý công việc (Task Management / CRM mini) dành cho đội kỹ thuật.
 
-db:
-image: postgres:15
-container_name: crm-db
-restart: always
-environment:
-POSTGRES_USER: postgres
-POSTGRES_PASSWORD: 123456
-POSTGRES_DB: crm
-ports:
-- "5432:5432"
-volumes:
-- pgdata:/var/lib/postgresql/data
+---
 
-backend:
-image: node:18
-container_name: crm-backend
-working_dir: /app
-volumes:
-- ./backend:/app
-command: sh -c "npm install && node src/server.js"
-ports:
-- "3001:3001"
-depends_on:
-- db
-environment:
-DATABASE_URL: postgresql://postgres:123456@db:5432/crm
-PORT: 3001
+## 🧱 Tech Stack
 
-frontend:
-image: node:18
-container_name: crm-frontend
-working_dir: /app
-volumes:
-- ./frontend:/app
-command: sh -c "npm install && npm run dev"
-ports:
-- "3000:3000"
-depends_on:
-- backend
+* 🎨 Frontend: Next.js
+* ⚙️ Backend: Node.js (Express)
+* 🗄️ Database: PostgreSQL
+* 🐳 Docker: Docker Compose
 
-volumes:
-pgdata:
+---
+
+## 📦 Features
+
+* Quản lý công việc (Tasks)
+* Gán nhân viên
+* Gắn khách hàng
+* API RESTful
+* UI dashboard đơn giản
+
+---
+
+## 📁 Project Structure
+
+```
+crm-task-manager/
+├── backend/
+├── frontend/
+├── database/
+├── docs/
+├── docker-compose.yml
+└── README.md
+```
+
+---
+
+## ⚙️ Setup (Local – không dùng Docker)
+
+### 1. Clone project
+
+```bash
+git clone https://github.com/wangminhei/crm-task-manager.git
+cd crm-task-manager
+```
+
+---
+
+### 2. Setup Database
+
+```bash
+psql -U postgres
+CREATE DATABASE crm;
+\c crm
+\i database/schema.sql
+```
+
+---
+
+### 3. Run Backend
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+Backend chạy tại:
+
+```
+http://localhost:3001
+```
+
+---
+
+### 4. Run Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend:
+
+```
+http://localhost:3000
+```
+
+---
+
+## 🐳 Run bằng Docker (khuyên dùng)
+
+Chạy toàn bộ hệ thống bằng 1 lệnh:
+
+```bash
+docker-compose up
+```
+
+---
+
+## 🌐 URLs
+
+| Service  | URL                   |
+| -------- | --------------------- |
+| Frontend | http://localhost:3000 |
+| Backend  | http://localhost:3001 |
+| Database | localhost:5432        |
+
+---
+
+## 📘 API Docs
+
+Xem chi tiết tại:
+
+```
+docs/api.md
+```
+
+---
+
+## ⚠️ Lưu ý
+
+* Backend dùng PostgreSQL
+* Khi chạy Docker, DB host là: `db`
+* Không commit file `.env`
+
+---
+
+## 🔥 Future Improvements
+
+* 🔐 Login / JWT Authentication
+* 👑 Role-based access
+* 📊 Dashboard nâng cao
+* ⚡ Realtime (Socket.io)
+* 📱 Mobile app
+
+---
+
+## 👨‍💻 Author
+
+Anna 🚀
+
+---
+
+## ⭐ Gợi ý
+
+Nếu bạn thấy project hữu ích:
+👉 Star repo để lưu lại 😎
