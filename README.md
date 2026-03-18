@@ -17,5 +17,5 @@ Fullstack CRM quản lý công việc cho team kỹ thuật
 ### 1. Clone repo
 
 ```bash
-git clone https://github.com/your-username/crm-task-manager.git
+git clone https://github.com/wangminhei/crm-task-manager.git
 cd crm-task-manager
