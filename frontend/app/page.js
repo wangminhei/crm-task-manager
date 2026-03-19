@@ -2,24 +2,49 @@
 
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import TaskCard from './components/TaskCard'
 
 export default function Home() {
   const [tasks, setTasks] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
 
   const API_URL =
     process.env.NEXT_PUBLIC_API_URL ||
     'https://crm-task-manager-production-2cd3.up.railway.app'
 
+  // 🔹 GET
   const fetchTasks = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/tasks`)
-      setTasks(res.data.data)
-    } catch (err) {
-      console.error('Lỗi fetch tasks:', err)
-    } finally {
-      setLoading(false)
-    }
+    const res = await axios.get(`${API_URL}/tasks`)
+    setTasks(res.data.data)
+  }
+
+  // 🔹 CREATE
+  const createTask = async () => {
+    if (!title) return
+
+    await axios.post(`${API_URL}/tasks`, {
+      title,
+      description
+    })
+
+    setTitle('')
+    setDescription('')
+    fetchTasks()
+  }
+
+  // 🔹 DELETE
+  const deleteTask = async (id) => {
+    await axios.delete(`${API_URL}/tasks/${id}`)
+    fetchTasks()
+  }
+
+  // 🔹 UPDATE STATUS
+  const updateStatus = async (id, status) => {
+    await axios.put(`${API_URL}/tasks/${id}`, {
+      status
+    })
+    fetchTasks()
   }
 
   useEffect(() => {
@@ -27,45 +52,60 @@ export default function Home() {
   }, [])
 
   return (
-    <main style={{ padding: 20 }}>
-      <h1>📋 CRM Task Manager</h1>
+    <div style={{ display: 'flex' }}>
+      
+      {/* SIDEBAR */}
+      <div style={{
+        width: 220,
+        height: '100vh',
+        background: '#111',
+        color: '#fff',
+        padding: 20
+      }}>
+        <h2>📊 CRM</h2>
+        <p>Dashboard</p>
+        <p>Công việc</p>
+        <p>Khách hàng</p>
+      </div>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : tasks.length === 0 ? (
-        <p>Không có task nào</p>
-      ) : (
-        <div style={{ marginTop: 20 }}>
-          {tasks.map((task) => (
-            <div
-              key={task.id}
-              style={{
-                border: '1px solid #ddd',
-                padding: 12,
-                borderRadius: 8,
-                marginBottom: 10
-              }}
-            >
-              <h3>{task.title}</h3>
-              <p>{task.description}</p>
+      {/* MAIN */}
+      <div style={{ flex: 1, padding: 20 }}>
+        <h1>CRM Task Manager</h1>
 
-              <p>
-                <strong>Status:</strong> {task.status}
-              </p>
+        {/* FORM */}
+        <div style={{
+          marginBottom: 20,
+          padding: 15,
+          border: '1px solid #ddd',
+          borderRadius: 10
+        }}>
+          <input
+            placeholder="Tiêu đề"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            style={{ display: 'block', marginBottom: 10, width: '100%' }}
+          />
 
-              <p>
-                <strong>Customer:</strong>{' '}
-                {task.customer_name || 'N/A'}
-              </p>
+          <input
+            placeholder="Mô tả"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            style={{ display: 'block', marginBottom: 10, width: '100%' }}
+          />
 
-              <p>
-                <strong>Assigned:</strong>{' '}
-                {task.user_name || 'N/A'}
-              </p>
-            </div>
-          ))}
+          <button onClick={createTask}>➕ Tạo task</button>
         </div>
-      )}
-    </main>
+
+        {/* LIST */}
+        {tasks.map((task) => (
+          <TaskCard
+            key={task.id}
+            task={task}
+            onDelete={deleteTask}
+            onUpdate={updateStatus}
+          />
+        ))}
+      </div>
+    </div>
   )
 }
