@@ -141,7 +141,7 @@ docs/api.md
 
 ## 👨‍💻 Author
 
-Anna 🚀
+wangminhei 🚀
 
 ---
 
