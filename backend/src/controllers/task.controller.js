@@ -78,12 +78,14 @@ exports.updateTaskStatus = async (req, res) => {
     const { id } = req.params
     const { status } = req.body
 
-    if (!status) {
-      return res.status(400).json({
-        success: false,
-        message: "Thiếu status"
-      })
-    }
+    const validStatus = ['pending', 'done', 'cancelled']
+
+if (!status || !validStatus.includes(status)) {
+  return res.status(400).json({
+    success: false,
+    message: "Status không hợp lệ"
+  })
+}
 
     await pool.query(
       `UPDATE tasks SET status = $1 WHERE id = $2`,
