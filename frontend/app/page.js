@@ -11,7 +11,7 @@ export default function Page() {
 
   const fetchTasks = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/tasks")
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/tasks`)
       setTasks(res.data.data || [])
     } catch (err) {
       console.error("Lỗi load tasks:", err)
