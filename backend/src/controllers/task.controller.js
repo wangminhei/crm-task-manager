@@ -40,12 +40,12 @@ exports.createTask = async (req, res) => {
   try {
     const { title, description, customer_id, assigned_to } = req.body
 
-    if (!title) {
-      return res.status(400).json({
-        success: false,
-        message: "Thiếu title"
-      })
-    }
+    if (!title || typeof title !== 'string' || title.trim() === '') {
+  return res.status(400).json({
+    success: false,
+    message: "Title không hợp lệ"
+  })
+}
 
     const result = await pool.query(
       `INSERT INTO tasks (title, description, customer_id, assigned_to)
