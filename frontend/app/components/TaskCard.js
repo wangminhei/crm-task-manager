@@ -1,43 +1,30 @@
-export default function TaskCard({ task }) {
+'use client'
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "done":
-        return "#2ecc71"
-      case "pending":
-        return "#f39c12"
-      default:
-        return "#95a5a6"
-    }
-  }
-
+export default function TaskCard({ task, onDelete, onUpdate }) {
   return (
     <div style={{
-      background: "#fff",
-      padding: 16,
-      borderRadius: 12,
-      marginBottom: 12,
-      boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
+      border: '1px solid #ddd',
+      borderRadius: 10,
+      padding: 15,
+      marginBottom: 10,
+      background: '#fff'
     }}>
-      <h3 style={{ margin: 0 }}>{task.title}</h3>
+      <h3>{task.title}</h3>
+      <p>{task.description}</p>
 
-      <p style={{ margin: "6px 0" }}>
-        👤 {task.user_name || "Chưa gán"}
-      </p>
+      <p><b>Status:</b> {task.status}</p>
+      <p><b>Customer:</b> {task.customer_name || 'N/A'}</p>
+      <p><b>User:</b> {task.user_name || 'N/A'}</p>
 
-      <p style={{ margin: "6px 0" }}>
-        🏢 {task.customer_name || "Không có"}
-      </p>
+      <div style={{ marginTop: 10 }}>
+        <button onClick={() => onUpdate(task.id, 'done')}>
+          ✅ Done
+        </button>
 
-      <span style={{
-        padding: "4px 10px",
-        borderRadius: 20,
-        background: getStatusColor(task.status),
-        color: "#fff",
-        fontSize: 12
-      }}>
-        {task.status}
-      </span>
+        <button onClick={() => onDelete(task.id)} style={{ marginLeft: 10 }}>
+          🗑️ Delete
+        </button>
+      </div>
     </div>
   )
 }
