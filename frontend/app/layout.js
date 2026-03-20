@@ -1,18 +1,14 @@
 import './globals.css'
 
 export const metadata = {
-  title: "CRM Dashboard",
-  description: "Task Manager"
+  title: 'FixPro Manager',
+  description: 'Quản lý công việc kỹ thuật'
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="vi">
-      <body style={{
-        margin: 0,
-        fontFamily: "Arial, sans-serif",
-        background: "#f5f6fa"
-      }}>
+      <body>
         {children}
       </body>
     </html>
