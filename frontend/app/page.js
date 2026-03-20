@@ -123,3 +123,34 @@ export default function Home() {
     Cancelled
   </div>
 </div>
+
+const [filter, setFilter] = useState('all')
+
+const filteredTasks = tasks.filter(t =>
+  filter === 'all' ? true : t.status === filter
+)
+
+<button onClick={()=>setFilter('pending')}>Pending</button>
+<button onClick={()=>setFilter('done')}>Done</button>
+
+<select onChange={(e)=>setAssigned(e.target.value)}>
+  <option value="1">KTV 1</option>
+  <option value="2">KTV 2</option>
+</select>
+
+<input type="datetime-local"
+  onChange={(e)=>setSchedule(e.target.value)}
+/>
+
+<textarea
+  placeholder="Mang theo gì..."
+  onChange={(e)=>setNote(e.target.value)}
+/>
+
+if (user.role === 'ktv') {
+  // chỉ DONE
+}
+
+if (user.role === 'admin') {
+  // full quyền
+}
