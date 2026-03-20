@@ -28,3 +28,5 @@ router.put('/:id', taskController.updateTaskStatus)
 router.delete('/:id', taskController.deleteTask)
 
 module.exports = router
+
+router.put('/tasks/:id', updateTask)
