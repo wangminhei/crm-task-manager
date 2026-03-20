@@ -109,3 +109,17 @@ export default function Home() {
     </div>
   )
 }
+
+<div className="grid grid-cols-3 gap-4 mb-4">
+  <div className="bg-yellow-300 p-4 rounded">
+    Pending: {tasks.filter(t=>t.status==='pending').length}
+  </div>
+
+  <div className="bg-green-300 p-4 rounded">
+    Done: {tasks.filter(t=>t.status==='done').length}
+  </div>
+
+  <div className="bg-red-300 p-4 rounded">
+    Cancelled
+  </div>
+</div>
