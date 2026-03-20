@@ -4,10 +4,21 @@ export default function Sidebar() {
       <h2 className="text-xl font-bold mb-6">FixPro Manager</h2>
 
       <div className="space-y-3">
-        <p className="bg-blue-500 px-3 py-2 rounded">📄 Công việc</p>
-        <p className="px-3 py-2 hover:bg-slate-700 rounded cursor-pointer">👤 Nhân viên</p>
-        <p className="px-3 py-2 hover:bg-slate-700 rounded cursor-pointer">👥 Khách hàng</p>
-        <p className="px-3 py-2 hover:bg-slate-700 rounded cursor-pointer">⚙️ Cài đặt</p>
+        <div className="bg-blue-500 px-3 py-2 rounded cursor-pointer">
+          📄 Công việc
+        </div>
+
+        <div className="px-3 py-2 hover:bg-slate-700 rounded cursor-pointer">
+          👤 Nhân viên
+        </div>
+
+        <div className="px-3 py-2 hover:bg-slate-700 rounded cursor-pointer">
+          👥 Khách hàng
+        </div>
+
+        <div className="px-3 py-2 hover:bg-slate-700 rounded cursor-pointer">
+          ⚙️ Cài đặt
+        </div>
       </div>
     </div>
   )
