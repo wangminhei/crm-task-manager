@@ -38,33 +38,38 @@ exports.getTasks = async (req, res) => {
  */
 exports.createTask = async (req, res) => {
   try {
-    const { title, description, customer_id, assigned_to } = req.body
+    const {
+      title,
+      description,
+      customer_id,
+      assigned_to,
+      note,
+      schedule_time
+    } = req.body
 
-    if (!title || typeof title !== 'string' || title.trim() === '') {
-  return res.status(400).json({
-    success: false,
-    message: "Title không hợp lệ"
-  })
-}
+    if (!title) {
+      return res.status(400).json({ message: 'Thiếu title' })
+    }
 
     const result = await pool.query(
-      `INSERT INTO tasks (title, description, customer_id, assigned_to)
-       VALUES ($1, $2, $3, $4)
-       RETURNING *`,
-      [title, description || '', customer_id || null, assigned_to || null]
+      `INSERT INTO tasks 
+      (title, description, customer_id, assigned_to, note, schedule_time)
+      VALUES ($1,$2,$3,$4,$5,$6)
+      RETURNING *`,
+      [
+        title,
+        description || '',
+        customer_id || null,
+        assigned_to || null,
+        note || '',
+        schedule_time || null
+      ]
     )
 
-    res.json({
-      success: true,
-      data: result.rows[0]
-    })
-
+    res.json({ success: true, data: result.rows[0] })
   } catch (err) {
     console.error(err)
-    res.status(500).json({
-      success: false,
-      message: "Tạo task thất bại"
-    })
+    res.status(500).json({ message: 'Lỗi tạo task' })
   }
 }
 
@@ -131,5 +136,24 @@ exports.deleteTask = async (req, res) => {
       success: false,
       message: "Xóa thất bại"
     })
+  }
+}
+
+exports.updateTask = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { status, schedule_time, assigned_to } = req.body
+
+    await pool.query(
+      `UPDATE tasks 
+       SET status=$1, schedule_time=$2, assigned_to=$3, updated_at=NOW()
+       WHERE id=$4`,
+      [status, schedule_time, assigned_to, id]
+    )
+
+    res.json({ success: true })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: 'Update lỗi' })
   }
 }
