@@ -2,16 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import Sidebar from './components/Sidebar'
 
 export default function Home() {
   const [tasks, setTasks] = useState([])
   const [filter, setFilter] = useState('all')
-
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [note, setNote] = useState('')
-  const [schedule, setSchedule] = useState('')
-  const [assigned, setAssigned] = useState('')
 
   const API_URL =
     process.env.NEXT_PUBLIC_API_URL ||
@@ -20,24 +15,6 @@ export default function Home() {
   const fetchTasks = async () => {
     const res = await axios.get(`${API_URL}/tasks`)
     setTasks(res.data.data)
-  }
-
-  const createTask = async () => {
-    if (!title) return
-
-    await axios.post(`${API_URL}/tasks`, {
-      title,
-      description,
-      note,
-      schedule_time: schedule,
-      assigned_to: assigned || null
-    })
-
-    setTitle('')
-    setDescription('')
-    setNote('')
-    setSchedule('')
-    fetchTasks()
   }
 
   const updateStatus = async (id, status) => {
@@ -50,125 +27,109 @@ export default function Home() {
     fetchTasks()
   }
 
-  const filteredTasks = tasks.filter((t) =>
-    filter === 'all' ? true : t.status === filter
-  )
-
   useEffect(() => {
     fetchTasks()
   }, [])
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex bg-gray-100 min-h-screen">
 
-      {/* SIDEBAR */}
-      <div className="w-64 bg-gray-900 text-white p-5">
-        <h2 className="text-xl font-bold mb-6">📊 CRM</h2>
-        <p className="mb-3 cursor-pointer hover:text-blue-400">Dashboard</p>
-        <p className="mb-3 cursor-pointer hover:text-blue-400">Công việc</p>
-        <p className="mb-3 cursor-pointer hover:text-blue-400">Khách hàng</p>
-      </div>
+      <Sidebar />
 
-      {/* MAIN */}
       <div className="flex-1 p-6">
 
-        <h1 className="text-2xl font-bold mb-4">CRM Task Manager</h1>
+        {/* HEADER */}
+        <h1 className="text-2xl font-bold mb-4">Công việc</h1>
 
-        {/* DASHBOARD */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-yellow-400 text-white p-4 rounded-xl shadow">
-            Pending: {tasks.filter(t => t.status === 'pending').length}
-          </div>
-          <div className="bg-green-500 text-white p-4 rounded-xl shadow">
-            Done: {tasks.filter(t => t.status === 'done').length}
-          </div>
-          <div className="bg-red-500 text-white p-4 rounded-xl shadow">
-            Cancelled: {tasks.filter(t => t.status === 'cancelled').length}
-          </div>
+        {/* STATS */}
+        <div className="grid grid-cols-5 gap-4 mb-6">
+          <div className="bg-orange-400 p-4 rounded text-white">Cần làm {tasks.filter(t=>t.status==='pending').length}</div>
+          <div className="bg-gray-200 p-4 rounded">Chưa có lịch</div>
+          <div className="bg-purple-400 p-4 rounded text-white">Đã hẹn</div>
+          <div className="bg-green-400 p-4 rounded text-white">Hoàn thành {tasks.filter(t=>t.status==='done').length}</div>
+          <div className="bg-red-400 p-4 rounded text-white">Đã huỷ</div>
         </div>
 
         {/* FILTER */}
-        <div className="mb-4 space-x-2">
-          <button onClick={() => setFilter('all')} className="px-3 py-1 bg-gray-300 rounded">All</button>
-          <button onClick={() => setFilter('pending')} className="px-3 py-1 bg-yellow-400 text-white rounded">Pending</button>
-          <button onClick={() => setFilter('done')} className="px-3 py-1 bg-green-500 text-white rounded">Done</button>
+        <div className="mb-4 flex gap-2">
+          <button onClick={()=>setFilter('all')} className="px-3 py-1 bg-gray-200 rounded">Tất cả</button>
+          <button onClick={()=>setFilter('pending')} className="px-3 py-1 bg-orange-400 text-white rounded">Cần làm</button>
+          <button onClick={()=>setFilter('done')} className="px-3 py-1 bg-green-500 text-white rounded">Hoàn thành</button>
         </div>
 
-        {/* FORM */}
-        <div className="bg-white p-5 rounded-xl shadow mb-6">
-          <h2 className="font-semibold mb-3">Tạo task</h2>
+        {/* TABLE */}
+        <div className="bg-white rounded shadow">
+          <table className="w-full text-sm">
 
-          <div className="grid grid-cols-2 gap-3">
-            <input
-              className="border p-2 rounded"
-              placeholder="Tiêu đề"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="p-3 text-left">#</th>
+                <th className="p-3 text-left">Trạng thái</th>
+                <th className="p-3 text-left">Nội dung</th>
+                <th className="p-3 text-left">Khách hàng</th>
+                <th className="p-3 text-left">Nhân viên</th>
+                <th className="p-3 text-left">Hành động</th>
+              </tr>
+            </thead>
 
-            <input
-              className="border p-2 rounded"
-              placeholder="Mô tả"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
+            <tbody>
+              {tasks
+                .filter(t => filter==='all' ? true : t.status===filter)
+                .map((task, index) => (
+                <tr key={task.id} className="border-t">
 
-            <input
-              type="datetime-local"
-              className="border p-2 rounded"
-              onChange={(e) => setSchedule(e.target.value)}
-            />
+                  <td className="p-3">{index + 1}</td>
 
-            <select
-              className="border p-2 rounded"
-              onChange={(e) => setAssigned(e.target.value)}
-            >
-              <option value="">Chọn kỹ thuật</option>
-              <option value="1">KTV 1</option>
-              <option value="2">KTV 2</option>
-            </select>
-          </div>
+                  <td className="p-3">
+                    {task.status === 'pending' && (
+                      <span className="bg-orange-200 px-2 py-1 rounded text-orange-700">
+                        Chưa nhận
+                      </span>
+                    )}
 
-          <textarea
-            className="border p-2 w-full mt-3 rounded"
-            placeholder="Mang theo gì..."
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-          />
+                    {task.status === 'done' && (
+                      <span className="bg-green-200 px-2 py-1 rounded text-green-700">
+                        Hoàn thành
+                      </span>
+                    )}
+                  </td>
 
-          <button
-            onClick={createTask}
-            className="mt-3 bg-blue-500 text-white px-4 py-2 rounded"
-          >
-            ➕ Tạo task
-          </button>
-        </div>
+                  <td className="p-3">
+                    <b>{task.title}</b>
+                    <p className="text-gray-500 text-xs">{task.description}</p>
+                  </td>
 
-        {/* TASK LIST */}
-        <div className="space-y-4">
-          {filteredTasks.map((task) => (
-            <div key={task.id} className="bg-white p-4 rounded-xl shadow">
-              <h3 className="font-bold">{task.title}</h3>
-              <p>{task.description}</p>
-              <p className="text-sm text-gray-500">{task.note}</p>
+                  <td className="p-3">
+                    {task.customer_name || '---'}
+                  </td>
 
-              <div className="mt-2 flex gap-2">
-                <button
-                  onClick={() => updateStatus(task.id, 'done')}
-                  className="bg-green-500 text-white px-2 py-1 rounded"
-                >
-                  Done
-                </button>
+                  <td className="p-3">
+                    {task.user_name || 'Chưa phân công'}
+                  </td>
 
-                <button
-                  onClick={() => deleteTask(task.id)}
-                  className="bg-red-500 text-white px-2 py-1 rounded"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
+                  <td className="p-3 flex gap-2">
+
+                    <button
+                      onClick={()=>updateStatus(task.id,'done')}
+                      className="bg-green-500 text-white px-2 py-1 rounded"
+                    >
+                      Done
+                    </button>
+
+                    <button
+                      onClick={()=>deleteTask(task.id)}
+                      className="bg-red-500 text-white px-2 py-1 rounded"
+                    >
+                      Xoá
+                    </button>
+
+                  </td>
+
+                </tr>
+              ))}
+            </tbody>
+
+          </table>
         </div>
 
       </div>
