@@ -67,14 +67,14 @@ export default function NewTaskPage() {
   }
 
   const Field = ({ label, required, error, children }) => (
-  <div className="flex flex-col">
-    <label className="text-sm font-medium text-gray-700 mb-1">
-      {label} {required && <span className="text-red-500">*</span>}
-    </label>
-    {children}
-    {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-  </div>
-)
+    <div className="flex flex-col">
+      <label className="text-sm font-medium text-gray-700 mb-1">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      {children}
+      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+    </div>
+  )
 
   return (
     <div className="flex bg-gray-100 min-h-screen">
@@ -98,37 +98,37 @@ export default function NewTaskPage() {
 
         <div className="grid grid-cols-3 gap-6">
 
-          {/* FORM — LEFT */}
+          {/* FORM — LEFT (col-span-2) */}
           <div className="col-span-2 space-y-5">
 
-            {/* Tiêu đề */}
+            {/* Thông tin cơ bản */}
             <div className="bg-white rounded-lg shadow p-5 space-y-4">
               <h2 className="font-semibold text-gray-700 border-b pb-2">Thông tin cơ bản</h2>
 
               <Field label="Tiêu đề" required error={errors.title}>
-  <input
-    type="text"
-    autoComplete="off"
-    className={`w-full border rounded-lg px-3 py-2 text-sm bg-white text-gray-900
-      focus:outline-none focus:ring-2 focus:ring-blue-300
-      ${errors.title ? 'border-red-400' : 'border-gray-300'}`}
-    placeholder="Nhập tiêu đề công việc..."
-    value={form.title}
-    onChange={e => setForm({ ...form, title: e.target.value })}
-  />
-</Field>
+                <input
+                  type="text"
+                  autoComplete="off"
+                  className={`w-full border rounded-lg px-3 py-2 text-sm bg-white text-gray-900
+                    focus:outline-none focus:ring-2 focus:ring-blue-300
+                    ${errors.title ? 'border-red-400' : 'border-gray-300'}`}
+                  placeholder="Nhập tiêu đề công việc..."
+                  value={form.title}
+                  onChange={e => setForm({ ...form, title: e.target.value })}
+                />
+              </Field>
 
-<Field label="Mô tả">
-  <textarea
-    autoComplete="off"
-    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white
-      text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
-    placeholder="Mô tả chi tiết công việc..."
-    rows={4}
-    value={form.description}
-    onChange={e => setForm({ ...form, description: e.target.value })}
-  />
-</Field>
+              <Field label="Mô tả">
+                <textarea
+                  autoComplete="off"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white
+                    text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
+                  placeholder="Mô tả chi tiết công việc..."
+                  rows={4}
+                  value={form.description}
+                  onChange={e => setForm({ ...form, description: e.target.value })}
+                />
+              </Field>
             </div>
 
             {/* Phân công */}
@@ -137,26 +137,32 @@ export default function NewTaskPage() {
 
               <Field label="Nhân viên phụ trách">
                 <select
-                  className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm
+                    bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300"
                   value={form.employee_id}
                   onChange={e => setForm({ ...form, employee_id: e.target.value })}
                 >
                   <option value="">-- Chưa phân công --</option>
                   {employees.map(emp => (
-                    <option key={emp.id} value={emp.id}>{emp.name} {emp.role ? `(${emp.role})` : ''}</option>
+                    <option key={emp.id} value={emp.id}>
+                      {emp.name} {emp.role ? `(${emp.role})` : ''}
+                    </option>
                   ))}
                 </select>
               </Field>
 
               <Field label="Khách hàng liên quan">
                 <select
-                  className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm
+                    bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300"
                   value={form.customer_id}
                   onChange={e => setForm({ ...form, customer_id: e.target.value })}
                 >
                   <option value="">-- Không có --</option>
                   {customers.map(c => (
-                    <option key={c.id} value={c.id}>{c.name} {c.company ? `- ${c.company}` : ''}</option>
+                    <option key={c.id} value={c.id}>
+                      {c.name} {c.company ? `- ${c.company}` : ''}
+                    </option>
                   ))}
                 </select>
               </Field>
@@ -167,12 +173,14 @@ export default function NewTaskPage() {
           {/* SIDEBAR — RIGHT */}
           <div className="space-y-5">
 
+            {/* Thuộc tính */}
             <div className="bg-white rounded-lg shadow p-5 space-y-4">
               <h2 className="font-semibold text-gray-700 border-b pb-2">Thuộc tính</h2>
 
               <Field label="Trạng thái">
                 <select
-                  className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm
+                    bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300"
                   value={form.status}
                   onChange={e => setForm({ ...form, status: e.target.value })}
                 >
@@ -185,7 +193,8 @@ export default function NewTaskPage() {
 
               <Field label="Độ ưu tiên">
                 <select
-                  className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm
+                    bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300"
                   value={form.priority}
                   onChange={e => setForm({ ...form, priority: e.target.value })}
                 >
@@ -198,7 +207,8 @@ export default function NewTaskPage() {
               <Field label="Hạn hoàn thành">
                 <input
                   type="date"
-                  className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm
+                    bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300"
                   value={form.due_date}
                   onChange={e => setForm({ ...form, due_date: e.target.value })}
                 />
@@ -210,13 +220,15 @@ export default function NewTaskPage() {
               <button
                 onClick={handleSubmit}
                 disabled={saving}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg text-sm font-medium disabled:opacity-50 transition-colors"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg
+                  text-sm font-medium disabled:opacity-50 transition-colors"
               >
                 {saving ? 'Đang tạo...' : '✓ Tạo công việc'}
               </button>
               <button
                 onClick={() => router.push('/')}
-                className="w-full border border-gray-300 text-gray-600 py-2.5 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+                className="w-full border border-gray-300 text-gray-600 py-2.5 rounded-lg
+                  text-sm hover:bg-gray-50 transition-colors"
               >
                 Hủy
               </button>
@@ -226,13 +238,17 @@ export default function NewTaskPage() {
             {form.title && (
               <div className="bg-white rounded-lg shadow p-5">
                 <h2 className="font-semibold text-gray-700 border-b pb-2 mb-3">Xem trước</h2>
-                <p className="font-medium text-sm">{form.title}</p>
+                <p className="font-medium text-sm text-gray-800">{form.title}</p>
                 {form.description && (
                   <p className="text-gray-500 text-xs mt-1 line-clamp-3">{form.description}</p>
                 )}
                 <div className="flex gap-2 mt-3">
-                  <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">{form.status}</span>
-                  <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-xs">{form.priority}</span>
+                  <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">
+                    {form.status}
+                  </span>
+                  <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-xs">
+                    {form.priority}
+                  </span>
                 </div>
               </div>
             )}
