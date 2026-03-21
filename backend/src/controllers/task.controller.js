@@ -242,3 +242,28 @@ exports.remove = async (req, res) => {
     res.status(500).json({ error: 'Lỗi server khi xóa task' })
   }
 }
+
+// DELETE /api/tasks/:id — chỉ admin
+exports.remove = async (req, res) => {
+  try {
+    // Kiểm tra quyền
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({ error: 'Chỉ admin mới có quyền xóa task' })
+    }
+
+    const { id } = req.params
+    const result = await pool.query(
+      'DELETE FROM tasks WHERE id = $1 RETURNING *',
+      [id]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Không tìm thấy task' })
+    }
+
+    res.json({ message: 'Xóa task thành công', task: result.rows[0] })
+  } catch (err) {
+    console.error('[task.remove]', err)
+    res.status(500).json({ error: 'Lỗi server khi xóa task' })
+  }
+}
