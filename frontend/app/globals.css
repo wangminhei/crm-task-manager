@@ -7,3 +7,9 @@ body {
   background-color: #f3f4f6;
   color: #111827;
 }
+
+input, textarea, select {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto !important;
+}
