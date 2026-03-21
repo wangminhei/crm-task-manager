@@ -2,7 +2,7 @@ import './globals.css'
 import { AuthProvider } from './context/AuthContext'
 
 export const metadata = {
-  title: 'CRM Task Manager',
+  title: 'Nhật Ký Công Việc',
   description: 'Hệ thống quản lý công việc nội bộ',
 }
 
