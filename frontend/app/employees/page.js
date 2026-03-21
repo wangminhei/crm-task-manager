@@ -3,12 +3,15 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import Sidebar from '../components/Sidebar'
+import { useAuth } from '../context/AuthContext'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://crm-task-manager-production-2cd3.up.railway.app'
-
 const EMPTY_FORM = { name: '', email: '', role: '', department: '' }
 
 export default function EmployeesPage() {
+  const { token, isAdmin } = useAuth()
+  const authHeader = { headers: { Authorization: `Bearer ${token}` } }
+
   const [employees, setEmployees] = useState([])
   const [loading, setLoading]     = useState(true)
   const [error, setError]         = useState(null)
@@ -18,10 +21,11 @@ export default function EmployeesPage() {
   const [saving, setSaving]       = useState(false)
 
   const fetchEmployees = async () => {
+    if (!token) return
     try {
       setLoading(true)
       setError(null)
-      const res = await axios.get(`${API_URL}/api/employees`)
+      const res = await axios.get(`${API_URL}/api/employees`, authHeader)
       setEmployees(res.data)
     } catch (err) {
       setError('Không thể tải danh sách nhân viên')
@@ -30,34 +34,24 @@ export default function EmployeesPage() {
     }
   }
 
-  useEffect(() => { fetchEmployees() }, [])
+  useEffect(() => { fetchEmployees() }, [token])
 
-  const openCreate = () => {
-    setForm(EMPTY_FORM)
-    setEditId(null)
-    setShowModal(true)
-  }
-
-  const openEdit = (emp) => {
+  const openCreate = () => { setForm(EMPTY_FORM); setEditId(null); setShowModal(true) }
+  const openEdit   = (emp) => {
     setForm({ name: emp.name, email: emp.email, role: emp.role || '', department: emp.department || '' })
     setEditId(emp.id)
     setShowModal(true)
   }
-
-  const closeModal = () => {
-    setShowModal(false)
-    setForm(EMPTY_FORM)
-    setEditId(null)
-  }
+  const closeModal = () => { setShowModal(false); setForm(EMPTY_FORM); setEditId(null) }
 
   const handleSubmit = async () => {
     if (!form.name || !form.email) return alert('Vui lòng nhập tên và email')
     try {
       setSaving(true)
       if (editId) {
-        await axios.put(`${API_URL}/api/employees/${editId}`, form)
+        await axios.put(`${API_URL}/api/employees/${editId}`, form, authHeader)
       } else {
-        await axios.post(`${API_URL}/api/employees`, form)
+        await axios.post(`${API_URL}/api/employees`, form, authHeader)
       }
       closeModal()
       fetchEmployees()
@@ -69,12 +63,13 @@ export default function EmployeesPage() {
   }
 
   const handleDelete = async (id) => {
+    if (!isAdmin) return alert('Chỉ admin mới có quyền xóa')
     if (!confirm('Xóa nhân viên này?')) return
     try {
-      await axios.delete(`${API_URL}/api/employees/${id}`)
+      await axios.delete(`${API_URL}/api/employees/${id}`, authHeader)
       fetchEmployees()
     } catch (err) {
-      alert('Xóa thất bại')
+      alert(err.response?.data?.error || 'Xóa thất bại')
     }
   }
 
