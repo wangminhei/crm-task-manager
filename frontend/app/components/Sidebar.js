@@ -32,7 +32,7 @@ export default function Sidebar() {
 
       {/* LOGO */}
       <div className="px-6 py-5 border-b border-gray-700">
-        <h2 className="text-lg font-bold tracking-wide">CRM Manager</h2>
+        <h2 className="text-lg font-bold tracking-wide">Nhật Ký Công Việc</h2>
         <p className="text-xs text-gray-400 mt-1">Quản lý công việc</p>
       </div>
 
