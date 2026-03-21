@@ -67,14 +67,14 @@ export default function NewTaskPage() {
   }
 
   const Field = ({ label, required, error, children }) => (
-    <div>
-      <label className="text-sm font-medium text-gray-700 mb-1 block">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      {children}
-      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-    </div>
-  )
+  <div className="flex flex-col">
+    <label className="text-sm font-medium text-gray-700 mb-1">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
+    {children}
+    {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+  </div>
+)
 
   return (
     <div className="flex bg-gray-100 min-h-screen">
@@ -106,23 +106,29 @@ export default function NewTaskPage() {
               <h2 className="font-semibold text-gray-700 border-b pb-2">Thông tin cơ bản</h2>
 
               <Field label="Tiêu đề" required error={errors.title}>
-                <input
-                  className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 ${errors.title ? 'border-red-400' : ''}`}
-                  placeholder="Nhập tiêu đề công việc..."
-                  value={form.title}
-                  onChange={e => setForm({ ...form, title: e.target.value })}
-                />
-              </Field>
+  <input
+    type="text"
+    autoComplete="off"
+    className={`w-full border rounded-lg px-3 py-2 text-sm bg-white text-gray-900
+      focus:outline-none focus:ring-2 focus:ring-blue-300
+      ${errors.title ? 'border-red-400' : 'border-gray-300'}`}
+    placeholder="Nhập tiêu đề công việc..."
+    value={form.title}
+    onChange={e => setForm({ ...form, title: e.target.value })}
+  />
+</Field>
 
-              <Field label="Mô tả">
-                <textarea
-                  className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
-                  placeholder="Mô tả chi tiết công việc..."
-                  rows={4}
-                  value={form.description}
-                  onChange={e => setForm({ ...form, description: e.target.value })}
-                />
-              </Field>
+<Field label="Mô tả">
+  <textarea
+    autoComplete="off"
+    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white
+      text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
+    placeholder="Mô tả chi tiết công việc..."
+    rows={4}
+    value={form.description}
+    onChange={e => setForm({ ...form, description: e.target.value })}
+  />
+</Field>
             </div>
 
             {/* Phân công */}
