@@ -17,6 +17,17 @@ const EMPTY_FORM = {
   customer_id: '',
 }
 
+// ✅ Field phải nằm NGOÀI component — nếu nằm trong sẽ bị recreate mỗi lần render
+const Field = ({ label, required, error, children }) => (
+  <div className="flex flex-col">
+    <label className="text-sm font-medium text-gray-700 mb-1">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
+    {children}
+    {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+  </div>
+)
+
 export default function NewTaskPage() {
   const router = useRouter()
   const [form, setForm]           = useState(EMPTY_FORM)
@@ -66,16 +77,6 @@ export default function NewTaskPage() {
     }
   }
 
-  const Field = ({ label, required, error, children }) => (
-    <div className="flex flex-col">
-      <label className="text-sm font-medium text-gray-700 mb-1">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      {children}
-      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-    </div>
-  )
-
   return (
     <div className="flex bg-gray-100 min-h-screen">
       <Sidebar />
@@ -98,7 +99,7 @@ export default function NewTaskPage() {
 
         <div className="grid grid-cols-3 gap-6">
 
-          {/* FORM — LEFT (col-span-2) */}
+          {/* FORM — LEFT */}
           <div className="col-span-2 space-y-5">
 
             {/* Thông tin cơ bản */}
@@ -173,7 +174,6 @@ export default function NewTaskPage() {
           {/* SIDEBAR — RIGHT */}
           <div className="space-y-5">
 
-            {/* Thuộc tính */}
             <div className="bg-white rounded-lg shadow p-5 space-y-4">
               <h2 className="font-semibold text-gray-700 border-b pb-2">Thuộc tính</h2>
 
