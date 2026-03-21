@@ -170,3 +170,40 @@ UNION ALL
 SELECT 'customers',                COUNT(*)            FROM customers
 UNION ALL
 SELECT 'tasks',                    COUNT(*)            FROM tasks;
+-- ============================================================
+-- USERS (auth)
+-- ============================================================
+DROP TABLE IF EXISTS users CASCADE;
+
+CREATE TABLE users (
+  id         SERIAL PRIMARY KEY,
+  username   VARCHAR(100) NOT NULL UNIQUE,
+  password   VARCHAR(255) NOT NULL,
+  role       VARCHAR(20)  NOT NULL DEFAULT 'tech'
+               CHECK (role IN ('admin', 'tech')),
+  full_name  VARCHAR(255),
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TRIGGER trg_users_updated_at
+  BEFORE UPDATE ON users
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- ============================================================
+-- TASKS: thêm cột reschedule
+-- ============================================================
+ALTER TABLE tasks
+  ADD COLUMN IF NOT EXISTS rescheduled_at   TIMESTAMP,
+  ADD COLUMN IF NOT EXISTS reschedule_note  TEXT,
+  ADD COLUMN IF NOT EXISTS reschedule_count INTEGER DEFAULT 0;
+
+-- ============================================================
+-- SEED users
+-- password: admin123  → bcrypt hash
+-- password: tech123   → bcrypt hash
+-- (hash được gen sẵn, rounds=10)
+-- ============================================================
+INSERT INTO users (username, password, role, full_name) VALUES
+  ('admin', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'Quản trị viên'),
+  ('tech',  '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'tech',  'Nhân viên kỹ thuật');
