@@ -1,32 +1,20 @@
-const express = require('express')
-const router = express.Router()
+const express    = require('express')
+const router     = express.Router()
+const controller = require('../controllers/task.controller')
 
-const taskController = require('../controllers/task.controller')
+// GET    /api/tasks
+router.get('/',     controller.getAll)
 
-/**
- * 📌 GET /tasks
- * Lấy danh sách task
- */
-router.get('/', taskController.getTasks)
+// GET    /api/tasks/:id
+router.get('/:id',  controller.getOne)
 
-/**
- * 📌 POST /tasks
- * Tạo task mới
- */
-router.post('/', taskController.createTask)
+// POST   /api/tasks
+router.post('/',    controller.create)
 
-/**
- * 📌 PUT /tasks/:id
- * Update trạng thái task
- */
-router.put('/:id', taskController.updateTaskStatus)
+// PUT    /api/tasks/:id
+router.put('/:id',  controller.update)
 
-/**
- * 📌 DELETE /tasks/:id
- * Xóa task
- */
-router.delete('/:id', taskController.deleteTask)
+// DELETE /api/tasks/:id
+router.delete('/:id', controller.remove)
 
 module.exports = router
-
-router.put('/tasks/:id', updateTask)
