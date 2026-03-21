@@ -1,159 +1,244 @@
 const pool = require('../db')
 
-/**
- * 📌 GET /tasks
- * Lấy danh sách task (kèm user + customer)
- */
-exports.getTasks = async (req, res) => {
+// ─────────────────────────────────────────────────────────────
+// GET /api/tasks
+// Query params: status, priority, employee_id, customer_id
+// ─────────────────────────────────────────────────────────────
+exports.getAll = async (req, res) => {
   try {
+    const { status, priority, employee_id, customer_id } = req.query
+
+    // Build WHERE động theo filter
+    const conditions = []
+    const values     = []
+    let   idx        = 1
+
+    if (status) {
+      conditions.push(`t.status = $${idx++}`)
+      values.push(status)
+    }
+    if (priority) {
+      conditions.push(`t.priority = $${idx++}`)
+      values.push(priority)
+    }
+    if (employee_id) {
+      conditions.push(`t.employee_id = $${idx++}`)
+      values.push(employee_id)
+    }
+    if (customer_id) {
+      conditions.push(`t.customer_id = $${idx++}`)
+      values.push(customer_id)
+    }
+
+    const where = conditions.length > 0
+      ? `WHERE ${conditions.join(' AND ')}`
+      : ''
+
     const result = await pool.query(`
-      SELECT 
-        t.*,
-        u.name AS user_name,
-        c.name AS customer_name
+      SELECT
+        t.id,
+        t.title,
+        t.description,
+        t.status,
+        t.priority,
+        t.due_date,
+        t.created_at,
+        t.updated_at,
+        e.id   AS employee_id,
+        e.name AS employee_name,
+        e.role AS employee_role,
+        c.id   AS customer_id,
+        c.name AS customer_name,
+        c.company AS customer_company
       FROM tasks t
-      LEFT JOIN users u ON t.assigned_to = u.id
+      LEFT JOIN employees e ON t.employee_id = e.id
       LEFT JOIN customers c ON t.customer_id = c.id
-      ORDER BY t.id DESC
-    `)
+      ${where}
+      ORDER BY
+        CASE t.priority
+          WHEN 'high'   THEN 1
+          WHEN 'medium' THEN 2
+          WHEN 'low'    THEN 3
+        END,
+        t.created_at DESC
+    `, values)
 
-    res.json({
-      success: true,
-      data: result.rows
-    })
-
+    res.json(result.rows)
   } catch (err) {
-    console.error(err)
-    res.status(500).json({
-      success: false,
-      message: "Lỗi khi lấy danh sách task"
-    })
+    console.error('[task.getAll]', err)
+    res.status(500).json({ error: 'Lỗi server khi lấy danh sách tasks' })
   }
 }
 
+// ─────────────────────────────────────────────────────────────
+// GET /api/tasks/:id
+// ─────────────────────────────────────────────────────────────
+exports.getOne = async (req, res) => {
+  try {
+    const { id } = req.params
 
-/**
- * 📌 POST /tasks
- * Tạo task mới
- */
-exports.createTask = async (req, res) => {
+    const result = await pool.query(`
+      SELECT
+        t.*,
+        e.name    AS employee_name,
+        e.role    AS employee_role,
+        e.email   AS employee_email,
+        c.name    AS customer_name,
+        c.company AS customer_company,
+        c.email   AS customer_email,
+        c.phone   AS customer_phone
+      FROM tasks t
+      LEFT JOIN employees e ON t.employee_id = e.id
+      LEFT JOIN customers c ON t.customer_id = c.id
+      WHERE t.id = $1
+    `, [id])
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Không tìm thấy task' })
+    }
+
+    res.json(result.rows[0])
+  } catch (err) {
+    console.error('[task.getOne]', err)
+    res.status(500).json({ error: 'Lỗi server khi lấy task' })
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// POST /api/tasks
+// ─────────────────────────────────────────────────────────────
+exports.create = async (req, res) => {
   try {
     const {
       title,
       description,
+      status      = 'todo',
+      priority    = 'medium',
+      due_date,
+      employee_id,
       customer_id,
-      assigned_to,
-      note,
-      schedule_time
     } = req.body
 
-    if (!title) {
-      return res.status(400).json({ message: 'Thiếu title' })
+    // Validate
+    if (!title?.trim()) {
+      return res.status(400).json({ error: 'Tiêu đề task là bắt buộc' })
     }
 
+    const VALID_STATUS   = ['todo', 'in_progress', 'pending', 'done']
+    const VALID_PRIORITY = ['low', 'medium', 'high']
+
+    if (!VALID_STATUS.includes(status)) {
+      return res.status(400).json({ error: `Status không hợp lệ. Chọn: ${VALID_STATUS.join(', ')}` })
+    }
+    if (!VALID_PRIORITY.includes(priority)) {
+      return res.status(400).json({ error: `Priority không hợp lệ. Chọn: ${VALID_PRIORITY.join(', ')}` })
+    }
+
+    const result = await pool.query(`
+      INSERT INTO tasks
+        (title, description, status, priority, due_date, employee_id, customer_id)
+      VALUES
+        ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING *
+    `, [
+      title.trim(),
+      description?.trim() || null,
+      status,
+      priority,
+      due_date    || null,
+      employee_id || null,
+      customer_id || null,
+    ])
+
+    res.status(201).json(result.rows[0])
+  } catch (err) {
+    console.error('[task.create]', err)
+    res.status(500).json({ error: 'Lỗi server khi tạo task' })
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// PUT /api/tasks/:id
+// ─────────────────────────────────────────────────────────────
+exports.update = async (req, res) => {
+  try {
+    const { id } = req.params
+    const {
+      title,
+      description,
+      status,
+      priority,
+      due_date,
+      employee_id,
+      customer_id,
+    } = req.body
+
+    // Kiểm tra task tồn tại
+    const existing = await pool.query('SELECT id FROM tasks WHERE id = $1', [id])
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ error: 'Không tìm thấy task' })
+    }
+
+    // Validate nếu có truyền lên
+    const VALID_STATUS   = ['todo', 'in_progress', 'pending', 'done']
+    const VALID_PRIORITY = ['low', 'medium', 'high']
+
+    if (status   && !VALID_STATUS.includes(status)) {
+      return res.status(400).json({ error: `Status không hợp lệ. Chọn: ${VALID_STATUS.join(', ')}` })
+    }
+    if (priority && !VALID_PRIORITY.includes(priority)) {
+      return res.status(400).json({ error: `Priority không hợp lệ. Chọn: ${VALID_PRIORITY.join(', ')}` })
+    }
+
+    const result = await pool.query(`
+      UPDATE tasks SET
+        title       = COALESCE($1, title),
+        description = COALESCE($2, description),
+        status      = COALESCE($3, status),
+        priority    = COALESCE($4, priority),
+        due_date    = COALESCE($5, due_date),
+        employee_id = COALESCE($6, employee_id),
+        customer_id = COALESCE($7, customer_id),
+        updated_at  = NOW()
+      WHERE id = $8
+      RETURNING *
+    `, [
+      title?.trim()   || null,
+      description?.trim() || null,
+      status          || null,
+      priority        || null,
+      due_date        || null,
+      employee_id     || null,
+      customer_id     || null,
+      id,
+    ])
+
+    res.json(result.rows[0])
+  } catch (err) {
+    console.error('[task.update]', err)
+    res.status(500).json({ error: 'Lỗi server khi cập nhật task' })
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// DELETE /api/tasks/:id
+// ─────────────────────────────────────────────────────────────
+exports.remove = async (req, res) => {
+  try {
+    const { id } = req.params
+
     const result = await pool.query(
-      `INSERT INTO tasks 
-      (title, description, customer_id, assigned_to, note, schedule_time)
-      VALUES ($1,$2,$3,$4,$5,$6)
-      RETURNING *`,
-      [
-        title,
-        description || '',
-        customer_id || null,
-        assigned_to || null,
-        note || '',
-        schedule_time || null
-      ]
-    )
-
-    res.json({ success: true, data: result.rows[0] })
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({ message: 'Lỗi tạo task' })
-  }
-}
-
-
-/**
- * 📌 PUT /tasks/:id
- * Update trạng thái task
- */
-exports.updateTaskStatus = async (req, res) => {
-  try {
-    const { id } = req.params
-    const { status } = req.body
-
-    const validStatus = ['pending', 'done', 'cancelled']
-
-if (!status || !validStatus.includes(status)) {
-  return res.status(400).json({
-    success: false,
-    message: "Status không hợp lệ"
-  })
-}
-
-    await pool.query(
-      `UPDATE tasks SET status = $1 WHERE id = $2`,
-      [status, id]
-    )
-
-    res.json({
-      success: true,
-      message: "Cập nhật thành công"
-    })
-
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({
-      success: false,
-      message: "Update thất bại"
-    })
-  }
-}
-
-
-/**
- * 📌 DELETE /tasks/:id
- * Xóa task
- */
-exports.deleteTask = async (req, res) => {
-  try {
-    const { id } = req.params
-
-    await pool.query(
-      `DELETE FROM tasks WHERE id = $1`,
+      'DELETE FROM tasks WHERE id = $1 RETURNING *',
       [id]
     )
 
-    res.json({
-      success: true,
-      message: "Đã xóa task"
-    })
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Không tìm thấy task' })
+    }
 
+    res.json({ message: 'Xóa task thành công', task: result.rows[0] })
   } catch (err) {
-    console.error(err)
-    res.status(500).json({
-      success: false,
-      message: "Xóa thất bại"
-    })
-  }
-}
-
-exports.updateTask = async (req, res) => {
-  try {
-    const { id } = req.params
-    const { status, schedule_time, assigned_to } = req.body
-
-    await pool.query(
-      `UPDATE tasks 
-       SET status=$1, schedule_time=$2, assigned_to=$3, updated_at=NOW()
-       WHERE id=$4`,
-      [status, schedule_time, assigned_to, id]
-    )
-
-    res.json({ success: true })
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({ message: 'Update lỗi' })
+    console.error('[task.remove]', err)
+    res.status(500).json({ error: 'Lỗi server khi xóa task' })
   }
 }
