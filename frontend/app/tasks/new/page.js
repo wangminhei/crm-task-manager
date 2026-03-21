@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import Sidebar from '../../components/Sidebar'
+import { useAuth } from '../../context/AuthContext'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://crm-task-manager-production-2cd3.up.railway.app'
 
@@ -17,7 +18,6 @@ const EMPTY_FORM = {
   customer_id: '',
 }
 
-// ✅ Field phải nằm NGOÀI component — nếu nằm trong sẽ bị recreate mỗi lần render
 const Field = ({ label, required, error, children }) => (
   <div className="flex flex-col">
     <label className="text-sm font-medium text-gray-700 mb-1">
@@ -30,6 +30,9 @@ const Field = ({ label, required, error, children }) => (
 
 export default function NewTaskPage() {
   const router = useRouter()
+  const { token } = useAuth()
+  const authHeader = { headers: { Authorization: `Bearer ${token}` } }
+
   const [form, setForm]           = useState(EMPTY_FORM)
   const [employees, setEmployees] = useState([])
   const [customers, setCustomers] = useState([])
@@ -37,11 +40,12 @@ export default function NewTaskPage() {
   const [errors, setErrors]       = useState({})
 
   useEffect(() => {
+    if (!token) return
     const fetchOptions = async () => {
       try {
         const [empRes, cusRes] = await Promise.all([
-          axios.get(`${API_URL}/api/employees`),
-          axios.get(`${API_URL}/api/customers`),
+          axios.get(`${API_URL}/api/employees`, authHeader),
+          axios.get(`${API_URL}/api/customers`, authHeader),
         ])
         setEmployees(empRes.data)
         setCustomers(cusRes.data)
@@ -50,7 +54,7 @@ export default function NewTaskPage() {
       }
     }
     fetchOptions()
-  }, [])
+  }, [token])
 
   const validate = () => {
     const e = {}
@@ -68,7 +72,7 @@ export default function NewTaskPage() {
         employee_id: form.employee_id || null,
         customer_id: form.customer_id || null,
         due_date:    form.due_date    || null,
-      })
+      }, authHeader)
       router.push('/')
     } catch (err) {
       alert(err.response?.data?.error || 'Tạo task thất bại')
@@ -243,12 +247,8 @@ export default function NewTaskPage() {
                   <p className="text-gray-500 text-xs mt-1 line-clamp-3">{form.description}</p>
                 )}
                 <div className="flex gap-2 mt-3">
-                  <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">
-                    {form.status}
-                  </span>
-                  <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-xs">
-                    {form.priority}
-                  </span>
+                  <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">{form.status}</span>
+                  <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-xs">{form.priority}</span>
                 </div>
               </div>
             )}
