@@ -85,12 +85,14 @@ export default function EmployeesPage() {
             <h1 className="text-2xl font-bold">Nhân viên</h1>
             <p className="text-gray-500 text-sm mt-1">Quản lý danh sách nhân viên</p>
           </div>
-          <button
-            onClick={openCreate}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
-          >
-            + Thêm nhân viên
-          </button>
+          {isAdmin && (
+            <button
+              onClick={openCreate}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+            >
+              + Thêm nhân viên
+            </button>
+          )}
         </div>
 
         {/* STATS */}
@@ -131,7 +133,8 @@ export default function EmployeesPage() {
                   <th className="p-4 text-left text-gray-600">Email</th>
                   <th className="p-4 text-left text-gray-600">Vai trò</th>
                   <th className="p-4 text-left text-gray-600">Phòng ban</th>
-                  <th className="p-4 text-left text-gray-600">Hành động</th>
+                  <th className="p-4 text-left text-gray-600">Tasks</th>
+                  {isAdmin && <th className="p-4 text-left text-gray-600">Hành động</th>}
                 </tr>
               </thead>
               <tbody>
@@ -150,31 +153,35 @@ export default function EmployeesPage() {
                     <td className="p-4">
                       {emp.role
                         ? <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">{emp.role}</span>
-                        : <span className="text-gray-300">---</span>
-                      }
+                        : <span className="text-gray-300">---</span>}
                     </td>
                     <td className="p-4">
                       {emp.department
                         ? <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs">{emp.department}</span>
-                        : <span className="text-gray-300">---</span>
-                      }
+                        : <span className="text-gray-300">---</span>}
                     </td>
                     <td className="p-4">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => openEdit(emp)}
-                          className="bg-yellow-100 hover:bg-yellow-400 text-yellow-700 hover:text-white px-3 py-1 rounded text-xs transition-colors"
-                        >
-                          Sửa
-                        </button>
-                        <button
-                          onClick={() => handleDelete(emp.id)}
-                          className="bg-red-100 hover:bg-red-500 text-red-500 hover:text-white px-3 py-1 rounded text-xs transition-colors"
-                        >
-                          Xóa
-                        </button>
-                      </div>
+                      <span className="text-gray-700 font-medium">{emp.total_tasks || 0}</span>
+                      <span className="text-gray-400 text-xs ml-1">tasks</span>
                     </td>
+                    {isAdmin && (
+                      <td className="p-4">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => openEdit(emp)}
+                            className="bg-yellow-100 hover:bg-yellow-400 text-yellow-700 hover:text-white px-3 py-1 rounded text-xs transition-colors"
+                          >
+                            Sửa
+                          </button>
+                          <button
+                            onClick={() => handleDelete(emp.id)}
+                            className="bg-red-100 hover:bg-red-500 text-red-500 hover:text-white px-3 py-1 rounded text-xs transition-colors"
+                          >
+                            Xóa
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -183,8 +190,8 @@ export default function EmployeesPage() {
         </div>
       </div>
 
-      {/* MODAL */}
-      {showModal && (
+      {/* MODAL — chỉ admin */}
+      {showModal && isAdmin && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
             <h2 className="text-lg font-bold mb-4">
@@ -194,7 +201,7 @@ export default function EmployeesPage() {
               <div>
                 <label className="text-sm text-gray-600 mb-1 block">Tên <span className="text-red-500">*</span></label>
                 <input
-                  className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300"
                   placeholder="Nguyễn Văn A"
                   value={form.name}
                   onChange={e => setForm({ ...form, name: e.target.value })}
@@ -204,7 +211,7 @@ export default function EmployeesPage() {
                 <label className="text-sm text-gray-600 mb-1 block">Email <span className="text-red-500">*</span></label>
                 <input
                   type="email"
-                  className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300"
                   placeholder="email@company.com"
                   value={form.email}
                   onChange={e => setForm({ ...form, email: e.target.value })}
@@ -213,7 +220,7 @@ export default function EmployeesPage() {
               <div>
                 <label className="text-sm text-gray-600 mb-1 block">Vai trò</label>
                 <input
-                  className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300"
                   placeholder="Developer, Designer, PM..."
                   value={form.role}
                   onChange={e => setForm({ ...form, role: e.target.value })}
@@ -222,7 +229,7 @@ export default function EmployeesPage() {
               <div>
                 <label className="text-sm text-gray-600 mb-1 block">Phòng ban</label>
                 <input
-                  className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300"
                   placeholder="Kỹ thuật, Kinh doanh..."
                   value={form.department}
                   onChange={e => setForm({ ...form, department: e.target.value })}
