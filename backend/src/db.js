@@ -1,6 +1,10 @@
 const { Pool } = require('pg')
 require('dotenv').config()
 
+if (!process.env.DATABASE_URL) {
+  throw new Error('Missing required env var: DATABASE_URL')
+}
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl:
