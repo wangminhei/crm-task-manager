@@ -1,5 +1,9 @@
 const jwt = require('jsonwebtoken')
-const JWT_SECRET = process.env.JWT_SECRET || 'crm_secret_key_2026'
+const JWT_SECRET = process.env.JWT_SECRET
+
+if (!JWT_SECRET) {
+  throw new Error('Missing required env var: JWT_SECRET')
+}
 
 // Xác thực token
 exports.authenticate = (req, res, next) => {
