@@ -6,7 +6,7 @@ import Sidebar from './components/Sidebar'
 import RescheduleModal from './components/RescheduleModal'
 import { useAuth } from './context/AuthContext'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://crm-task-manager-production-2cd3.up.railway.app'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 const STATUS_MAP = {
   todo:        { label: 'Cần làm',    bg: 'bg-orange-100', text: 'text-orange-700' },
