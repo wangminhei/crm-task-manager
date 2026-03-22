@@ -2,8 +2,12 @@ const bcrypt = require('bcryptjs')
 const jwt    = require('jsonwebtoken')
 const pool   = require('../db')
 
-const JWT_SECRET  = process.env.JWT_SECRET  || 'crm_secret_key_2026'
+const JWT_SECRET  = process.env.JWT_SECRET
 const JWT_EXPIRES = process.env.JWT_EXPIRES || '7d'
+
+if (!JWT_SECRET) {
+  throw new Error('Missing required env var: JWT_SECRET')
+}
 
 exports.login = async (req, res) => {
   try {
