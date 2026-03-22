@@ -1,5 +1,5 @@
 -- ============================================================
--- CRM Task Manager — Seed Data
+-- Nhật Ký Công Việc — Seed Data
 -- Chạy SAU khi đã chạy schema.sql
 -- ============================================================
 
@@ -103,7 +103,7 @@ INSERT INTO tasks (title, description, status, priority, due_date, employee_id, 
     6, NULL
   ),
   (
-    'Phân tích yêu cầu hệ thống CRM cho GHI',
+    'Phân tích yêu cầu hệ thống Nhật Ký Công Việc cho GHI',
     'Thu thập và phân tích yêu cầu nghiệp vụ. Viết BRD và use case diagram.',
     'in_progress', 'medium',
     CURRENT_DATE + INTERVAL '14 days',
