@@ -146,7 +146,7 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const { id }                          = req.params
-    const { name, email, role, department } = req.body
+    const { email } = req.body
 
     // Kiểm tra tồn tại
     const existing = await pool.query('SELECT id FROM employees WHERE id = $1', [id])
@@ -162,22 +162,38 @@ exports.update = async (req, res) => {
       }
     }
 
-    const result = await pool.query(`
-      UPDATE employees SET
-        name       = COALESCE($1, name),
-        email      = COALESCE($2, email),
-        role       = COALESCE($3, role),
-        department = COALESCE($4, department),
-        updated_at = NOW()
-      WHERE id = $5
-      RETURNING *
-    `, [
-      name?.trim()       || null,
-      email?.trim().toLowerCase() || null,
-      role?.trim()       || null,
-      department?.trim() || null,
-      id,
-    ])
+    const updates = []
+    const values = []
+    let idx = 1
+
+    if (Object.prototype.hasOwnProperty.call(req.body, 'name')) {
+      updates.push(`name = $${idx++}`)
+      values.push(req.body.name?.trim() || null)
+    }
+    if (Object.prototype.hasOwnProperty.call(req.body, 'email')) {
+      updates.push(`email = $${idx++}`)
+      values.push(req.body.email?.trim().toLowerCase() || null)
+    }
+    if (Object.prototype.hasOwnProperty.call(req.body, 'role')) {
+      updates.push(`role = $${idx++}`)
+      values.push(req.body.role?.trim() || null)
+    }
+    if (Object.prototype.hasOwnProperty.call(req.body, 'department')) {
+      updates.push(`department = $${idx++}`)
+      values.push(req.body.department?.trim() || null)
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ error: 'Không có dữ liệu cần cập nhật' })
+    }
+
+    updates.push('updated_at = NOW()')
+    values.push(id)
+
+    const result = await pool.query(
+      `UPDATE employees SET ${updates.join(', ')} WHERE id = $${idx} RETURNING *`,
+      values
+    )
 
     res.json(result.rows[0])
   } catch (err) {
