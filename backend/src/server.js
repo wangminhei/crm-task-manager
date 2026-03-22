@@ -14,14 +14,15 @@ const { authenticate } = require('./middleware/auth.middleware')
 
 const app  = express()
 const PORT = process.env.PORT || 3001
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000'
 
 app.use(cors({
-  origin:      process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin:      FRONTEND_URL.split(',').map((origin) => origin.trim()),
   credentials: true,
 }))
 app.use(express.json())
 
-app.get('/', (_req, res) => res.json({ status: 'ok', message: '🚀 CRM API đang chạy' }))
+app.get('/', (_req, res) => res.json({ status: 'ok', message: '🚀 Nhật Ký Công Việc API đang chạy' }))
 app.get('/health', async (_req, res) => {
   try {
     await pool.query('SELECT 1')
