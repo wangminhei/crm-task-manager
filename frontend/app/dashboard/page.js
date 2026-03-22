@@ -5,7 +5,7 @@ import axios from 'axios'
 import Sidebar from '../components/Sidebar'
 import { useAuth } from '../context/AuthContext'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://crm-task-manager-production-2cd3.up.railway.app'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 const fmt = (n) => parseInt(n || 0)
 
@@ -169,7 +169,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold">Dashboard</h1>
-            <p className="text-gray-500 text-sm mt-1">Tổng quan hệ thống CRM</p>
+            <p className="text-gray-500 text-sm mt-1">Tổng quan hệ thống Nhật Ký Công Việc</p>
           </div>
           <button onClick={fetchStats} className="text-sm text-gray-500 hover:text-gray-800 border border-gray-300 px-3 py-1.5 rounded-lg hover:bg-white transition-colors">
             ↻ Làm mới
