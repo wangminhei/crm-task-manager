@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://crm-task-manager-production-2cd3.up.railway.app'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 export default function LoginPage() {
   const router = useRouter()
