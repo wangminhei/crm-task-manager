@@ -15,8 +15,13 @@ export function AuthProvider({ children }) {
     const savedToken = localStorage.getItem('crm_token')
     const savedUser  = localStorage.getItem('crm_user')
     if (savedToken && savedUser) {
-      setToken(savedToken)
-      setUser(JSON.parse(savedUser))
+      try {
+        setToken(savedToken)
+        setUser(JSON.parse(savedUser))
+      } catch (_err) {
+        localStorage.removeItem('crm_token')
+        localStorage.removeItem('crm_user')
+      }
     }
     setReady(true)
   }, [])
