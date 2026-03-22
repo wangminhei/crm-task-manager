@@ -1,5 +1,5 @@
 -- ============================================================
--- CRM Task Manager — Database Schema
+-- Nhật Ký Công Việc — Database Schema
 -- PostgreSQL 15+
 -- ============================================================
 
@@ -200,8 +200,8 @@ ALTER TABLE tasks
 
 -- ============================================================
 -- SEED users
--- password: admin123  → bcrypt hash
--- password: tech123   → bcrypt hash
+-- password: password  → bcrypt hash
+-- password: password  → bcrypt hash
 -- (hash được gen sẵn, rounds=10)
 -- ============================================================
 INSERT INTO users (username, password, role, full_name) VALUES
