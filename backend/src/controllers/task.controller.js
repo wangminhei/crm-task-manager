@@ -8,7 +8,6 @@ exports.getAll = async (req, res) => {
   try {
     const { status, priority, employee_id, customer_id } = req.query
 
-    // Build WHERE động theo filter
     const conditions = []
     const values     = []
     let   idx        = 1
@@ -47,12 +46,12 @@ exports.getAll = async (req, res) => {
         t.reschedule_count,
         t.created_at,
         t.updated_at,
-        e.id   AS employee_id,
-        e.name AS employee_name,
-        e.role AS employee_role,
-        c.id   AS customer_id,
-        c.name AS customer_name,
-        c.company AS customer_company
+        e.id          AS employee_id,
+        e.name        AS employee_name,
+        e.role        AS employee_role,
+        c.id          AS customer_id,
+        c.name        AS customer_name,
+        c.company     AS customer_company
       FROM tasks t
       LEFT JOIN employees e ON t.employee_id = e.id
       LEFT JOIN customers c ON t.customer_id = c.id
@@ -78,8 +77,7 @@ exports.getAll = async (req, res) => {
 // ─────────────────────────────────────────────────────────────
 exports.getOne = async (req, res) => {
   try {
-    const { id } = req.params
-    const { status, priority } = req.body
+    const { id } = req.params  // ✅ fix: bỏ destructure status/priority thừa
 
     const result = await pool.query(`
       SELECT
@@ -123,7 +121,6 @@ exports.create = async (req, res) => {
       customer_id,
     } = req.body
 
-    // Validate
     if (!title?.trim()) {
       return res.status(400).json({ error: 'Tiêu đề task là bắt buộc' })
     }
@@ -167,6 +164,7 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const { id } = req.params
+    const { status, priority } = req.body  // ✅ fix: destructure để validate
 
     // Kiểm tra task tồn tại
     const existing = await pool.query('SELECT id FROM tasks WHERE id = $1', [id])
@@ -178,16 +176,17 @@ exports.update = async (req, res) => {
     const VALID_STATUS   = ['todo', 'in_progress', 'pending', 'done']
     const VALID_PRIORITY = ['low', 'medium', 'high']
 
-    if (status   && !VALID_STATUS.includes(status)) {
+    if (status && !VALID_STATUS.includes(status)) {
       return res.status(400).json({ error: `Status không hợp lệ. Chọn: ${VALID_STATUS.join(', ')}` })
     }
     if (priority && !VALID_PRIORITY.includes(priority)) {
       return res.status(400).json({ error: `Priority không hợp lệ. Chọn: ${VALID_PRIORITY.join(', ')}` })
     }
 
+    // Dynamic update — chỉ update field được truyền lên
     const updates = []
-    const values = []
-    let idx = 1
+    const values  = []
+    let   idx     = 1
 
     if (Object.prototype.hasOwnProperty.call(req.body, 'title')) {
       updates.push(`title = $${idx++}`)
@@ -239,9 +238,9 @@ exports.update = async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────
 // DELETE /api/tasks/:id — chỉ admin
+// ─────────────────────────────────────────────────────────────
 exports.remove = async (req, res) => {
   try {
-    // Kiểm tra quyền
     if (req.user?.role !== 'admin') {
       return res.status(403).json({ error: 'Chỉ admin mới có quyền xóa task' })
     }
