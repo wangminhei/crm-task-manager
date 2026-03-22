@@ -5,7 +5,7 @@ import axios from 'axios'
 import Sidebar from '../components/Sidebar'
 import { useAuth } from '../context/AuthContext'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://crm-task-manager-production-2cd3.up.railway.app'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 const EMPTY_FORM = { name: '', email: '', role: '', department: '' }
 
 export default function EmployeesPage() {
