@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import axios from 'axios'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://crm-task-manager-production-2cd3.up.railway.app'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 export default function RescheduleModal({ task, token, onClose, onSuccess }) {
   const [date,    setDate]    = useState('')
