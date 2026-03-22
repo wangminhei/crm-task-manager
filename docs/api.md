@@ -1,6 +1,6 @@
-# 📘 CRM Task Manager — API Documentation
+# 📘 Nhật Ký Công Việc — API Documentation
 
-Base URL (production): `https://crm-task-manager-production-2cd3.up.railway.app`  
+Base URL: cấu hình theo biến môi trường (ví dụ `https://api.your-domain.com`)  
 Base URL (local): `http://localhost:3001`
 
 ---
@@ -25,7 +25,7 @@ Kiểm tra server có đang chạy không.
 ```json
 {
   "status": "ok",
-  "message": "🚀 CRM API đang chạy"
+  "message": "🚀 Nhật Ký Công Việc API đang chạy"
 }
 ```
 
