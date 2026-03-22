@@ -42,6 +42,9 @@ exports.getAll = async (req, res) => {
         t.status,
         t.priority,
         t.due_date,
+        t.rescheduled_at,
+        t.reschedule_note,
+        t.reschedule_count,
         t.created_at,
         t.updated_at,
         e.id   AS employee_id,
@@ -76,6 +79,7 @@ exports.getAll = async (req, res) => {
 exports.getOne = async (req, res) => {
   try {
     const { id } = req.params
+    const { status, priority } = req.body
 
     const result = await pool.query(`
       SELECT
@@ -163,15 +167,6 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const { id } = req.params
-    const {
-      title,
-      description,
-      status,
-      priority,
-      due_date,
-      employee_id,
-      customer_id,
-    } = req.body
 
     // Kiểm tra task tồn tại
     const existing = await pool.query('SELECT id FROM tasks WHERE id = $1', [id])
@@ -190,28 +185,50 @@ exports.update = async (req, res) => {
       return res.status(400).json({ error: `Priority không hợp lệ. Chọn: ${VALID_PRIORITY.join(', ')}` })
     }
 
-    const result = await pool.query(`
-      UPDATE tasks SET
-        title       = COALESCE($1, title),
-        description = COALESCE($2, description),
-        status      = COALESCE($3, status),
-        priority    = COALESCE($4, priority),
-        due_date    = COALESCE($5, due_date),
-        employee_id = COALESCE($6, employee_id),
-        customer_id = COALESCE($7, customer_id),
-        updated_at  = NOW()
-      WHERE id = $8
-      RETURNING *
-    `, [
-      title?.trim()   || null,
-      description?.trim() || null,
-      status          || null,
-      priority        || null,
-      due_date        || null,
-      employee_id     || null,
-      customer_id     || null,
-      id,
-    ])
+    const updates = []
+    const values = []
+    let idx = 1
+
+    if (Object.prototype.hasOwnProperty.call(req.body, 'title')) {
+      updates.push(`title = $${idx++}`)
+      values.push(req.body.title?.trim() || null)
+    }
+    if (Object.prototype.hasOwnProperty.call(req.body, 'description')) {
+      updates.push(`description = $${idx++}`)
+      values.push(req.body.description?.trim() || null)
+    }
+    if (Object.prototype.hasOwnProperty.call(req.body, 'status')) {
+      updates.push(`status = $${idx++}`)
+      values.push(req.body.status || null)
+    }
+    if (Object.prototype.hasOwnProperty.call(req.body, 'priority')) {
+      updates.push(`priority = $${idx++}`)
+      values.push(req.body.priority || null)
+    }
+    if (Object.prototype.hasOwnProperty.call(req.body, 'due_date')) {
+      updates.push(`due_date = $${idx++}`)
+      values.push(req.body.due_date || null)
+    }
+    if (Object.prototype.hasOwnProperty.call(req.body, 'employee_id')) {
+      updates.push(`employee_id = $${idx++}`)
+      values.push(req.body.employee_id || null)
+    }
+    if (Object.prototype.hasOwnProperty.call(req.body, 'customer_id')) {
+      updates.push(`customer_id = $${idx++}`)
+      values.push(req.body.customer_id || null)
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ error: 'Không có dữ liệu cần cập nhật' })
+    }
+
+    updates.push('updated_at = NOW()')
+    values.push(id)
+
+    const result = await pool.query(
+      `UPDATE tasks SET ${updates.join(', ')} WHERE id = $${idx} RETURNING *`,
+      values
+    )
 
     res.json(result.rows[0])
   } catch (err) {
